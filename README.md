@@ -96,6 +96,58 @@ export const ItemExample = {
 }
 ```
 
+### Method `onLanguageChange`
+
+Plugins may define labels, which are not covered by the host's translation files
+and therefore need to deliver their own translations.
+
+The `ItemPlugins` offers a flexible way to reactively update labels for multiple
+languages.
+
+Host:
+
+The host will have to implement a reactive language change-detection and 
+passes the current locale code to the `ItemPlugins.onLanguageChange` function.
+
+Since this function returns a promise the host will have to catch/then the
+response and update the internal translation base for the given code:
+
+```javascript
+import { ItemPlugins } from 'meteor/claire:plugin-registry'
+
+Tracker.autorun(() => {
+  const langCode = currentLocal() // implement on your own, needs to be reactive
+  
+  ItemPlugins.onLanguageChange(langCode)
+    .catch(e => console.error(e))
+    .then(allTranslations => {
+      allTranslations.forEach(lang => {
+        updateLang(langCode, lang) // impement on your own to add new labels
+      })
+    }) 
+})
+```
+
+
+
+Plugin:
+
+First, there needs to be a language JSON file for each supported language.
+Then there needs to be a function, where the file is dynamically loaded by a 
+given language code. This function must be registered via `onLanguageChange`:
+
+```javascript
+import { ItemPlugins } from 'meteor/claire:plugin-registry'
+
+ItemPlugins.onLanguageChange(langCode => {
+  switch (langCode) {
+    case 'de':
+      return import('./de.json')
+  } 
+})
+```
+
+
 ### Method `categories`
 
 Register a function, that resolves to the current available categories.
