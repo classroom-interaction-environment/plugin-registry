@@ -437,4 +437,4 @@ TBD
 
 ## License
 
-MIT License, see [LICENSE file](./LICENSE)
+MIT License, see [LICENSE file](LICENSE)
